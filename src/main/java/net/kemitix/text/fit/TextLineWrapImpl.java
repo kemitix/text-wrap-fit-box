@@ -50,7 +50,6 @@ class TextLineWrapImpl implements WordWrapper {
                 .collect(Collectors.toList());
     }
 
-    @Getter
     private static class Word {
         private final String word;
         private final int width;
