@@ -18,7 +18,7 @@ public class TextLineWrapTest
     private final WordWrapper textLineWrap = TextFit.wrapper();
     private final int imageSize = 300;
     private final int fontSize = 20;
-    private final Graphics2D graphics100x100 = graphics(imageSize, imageSize);
+    private final Graphics2D graphics2D = graphics(imageSize, imageSize);
     private final Font font;
 
     public TextLineWrapTest()
@@ -31,7 +31,7 @@ public class TextLineWrapTest
     }
 
     private List<String> invoke(String in) {
-        return textLineWrap.wrap(in, font, graphics100x100, imageSize);
+        return textLineWrap.wrap(in, font, graphics2D, imageSize);
     }
 
     @Test
