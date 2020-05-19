@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>text-wrap-fit-box</artifactId>
-    <version>DEV-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <properties>
         <tiles-maven-plugin.version>2.16</tiles-maven-plugin.version>
