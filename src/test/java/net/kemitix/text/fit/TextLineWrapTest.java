@@ -50,9 +50,7 @@ public class TextLineWrapTest
         wordWidth = (int) wordBounds.getWidth();
         wordHeight = (int) wordBounds.getHeight();
         wordsPerLine = imageSize / (wordWidth + spaceWidth);
-        System.out.println("wordsPerLine = " + wordsPerLine);
         linesPerBox = imageSize / wordHeight;
-        System.out.println("linesPerBox = " + linesPerBox);
     }
 
     private Rectangle2D stringBounds(
@@ -253,9 +251,7 @@ public class TextLineWrapTest
             public void fitMaxLinesInFirstBox() {
                 String oneLinesWorthOfWords = words(wordsPerLine, WORD);
                 String input = words(linesPerBox, oneLinesWorthOfWords);
-                System.out.println("input = " + input);
                 List<List<String>> result = invoke(input);
-                System.out.println("result = " + result);
                 List<String> linesBoxOne = result.get(0);
                 assertThat(linesBoxOne)
                         .hasSize(linesPerBox)
@@ -269,9 +265,7 @@ public class TextLineWrapTest
             public void overflowMaxPlusOneLinesIntoSecondBox() {
                 String oneLinesWorthOfWords = words(wordsPerLine, WORD);
                 String input = words(linesPerBox + 1, oneLinesWorthOfWords);
-                System.out.println("input = " + input);
                 List<List<String>> result = invoke(input);
-                System.out.println("result = " + result);
                 List<String> linesBoxOne = result.get(0);
                 assertThat(linesBoxOne)
                         .hasSize(linesPerBox)
