@@ -14,6 +14,10 @@
     <version>DEV-SNAPSHOT</version>
 
     <properties>
+        <java.version>11</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+
         <tiles-maven-plugin.version>2.16</tiles-maven-plugin.version>
         <kemitix-maven-tiles.version>2.6.0</kemitix-maven-tiles.version>
         <kemitix-checkstyle.version>5.4.0</kemitix-checkstyle.version>
