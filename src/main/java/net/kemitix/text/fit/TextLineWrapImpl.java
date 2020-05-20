@@ -5,6 +5,7 @@ import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,12 +18,30 @@ class TextLineWrapImpl implements WordWrapper {
             Graphics2D graphics2D,
             int width
     ) {
-        String source = String.join(" ", text.split("\n"));
-        List<Word> words = wordLengths(source.split(" "), font, graphics2D);
-        return wrapWords(words, width);
+        return wrap(text, font, graphics2D,
+                Collections.singletonList(
+                        new Rectangle(width, width)))
+                .get(0);
     }
 
-    private List<String> wrapWords(List<Word> words, int width) {
+    @Override
+    public List<List<String>> wrap(
+            String text,
+            Font font,
+            Graphics2D graphics2D,
+            List<Rectangle2D> boxes
+    ) {
+        String source = String.join(" ", text.split("\n"));
+        List<Word> words = wordLengths(source.split(" "), font, graphics2D);
+        return wrapWords(words, boxes);
+    }
+
+    private List<List<String>> wrapWords(
+            List<Word> words,
+            List<Rectangle2D> boxes
+    ) {
+        Rectangle2D rectangle2D = boxes.get(0);
+        double width = rectangle2D.getWidth();
         List<String> lines = new ArrayList<>();
         int end = 0;
         List<String> line = new ArrayList<>();
@@ -36,9 +55,10 @@ class TextLineWrapImpl implements WordWrapper {
             end += word.width;
         }
         lines.add(String.join(" ", line));
-        return lines.stream()
-                .filter(l -> l.length() > 0)
-                .collect(Collectors.toList());
+        return Collections.singletonList(
+                lines.stream()
+                        .filter(l -> l.length() > 0)
+                        .collect(Collectors.toList()));
     }
 
     private List<Word> wordLengths(String[] words, Font font, Graphics2D graphics2D) {
