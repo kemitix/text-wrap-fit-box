@@ -53,8 +53,8 @@ public class BoxFitterTest
     }
 
     @Test
-    @DisplayName("Fit two words")
-    public void fitTwoWords() {
+    @DisplayName("Fit various lengths")
+    public void fitVariousLengths() {
         Map<String, Integer> wordMap = Map.of(
                 ". .", 263,
                 "a a", 208,
