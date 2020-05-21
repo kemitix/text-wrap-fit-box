@@ -183,6 +183,26 @@ public class TextLineWrapTest
                         oneLinesWorthOfWords,
                         WORD));
             }
+
+            @Test
+            @DisplayName("Text fills the box")
+            public void textFillsBox() {
+                String lineOfWords = words(wordsPerLine, WORD);
+                String words = words(linesPerBox, lineOfWords);
+                assertThat(invoke(words).get(0))
+                        .hasSize(linesPerBox)
+                        .allSatisfy(line ->
+                                assertThat(line).isEqualTo(lineOfWords));
+            }
+
+            @Test
+            @DisplayName("Text overflows the box")
+            public void tooManyLinesForBox() {
+                String lineOfWords = words(wordsPerLine, WORD);
+                assertThatExceptionOfType(IllegalArgumentException.class)
+                        .isThrownBy(() ->
+                                words(linesPerBox + 1, lineOfWords));
+            }
         }
 
         @Nested
