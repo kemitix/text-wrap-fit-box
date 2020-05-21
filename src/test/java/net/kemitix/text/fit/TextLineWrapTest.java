@@ -130,7 +130,7 @@ public class TextLineWrapTest
 
         private List<Rectangle2D> boxes = new ArrayList<>();
 
-        private List<List<String>> invoke(String in) {
+        private List<List<String>> wrap(String in) {
             return textLineWrap.wrap(in, font, graphics2D, boxes);
         }
 
@@ -146,13 +146,13 @@ public class TextLineWrapTest
             @Test
             @DisplayName("Empty String give empty List")
             public void emptyStringEmptyList() {
-                assertThat(invoke("")).containsExactly(Collections.emptyList());
+                assertThat(wrap("")).containsExactly(Collections.emptyList());
             }
 
             @Test
             @DisplayName("Short string fits on one line")
             public void shortStringOnOneLine() {
-                assertThat(invoke("x"))
+                assertThat(wrap("x"))
                         .containsExactly(Collections.singletonList("x"));
             }
 
@@ -160,7 +160,7 @@ public class TextLineWrapTest
             @DisplayName("Fits max 'words' per line on one line")
             public void fitMaxWordsOneLine() {
                 String input = words(wordsPerLine, WORD);
-                assertThat(invoke(input))
+                assertThat(wrap(input))
                         .containsExactly(Collections.singletonList(input));
             }
 
@@ -168,7 +168,7 @@ public class TextLineWrapTest
             @DisplayName("Wraps just over max 'words' per line onto two lines")
             public void wrapOneWordTooManyOntoTwoLines() {
                 String input = words(wordsPerLine + 1, WORD);
-                assertThat(invoke(input)).containsExactly(Arrays.asList(
+                assertThat(wrap(input)).containsExactly(Arrays.asList(
                         words(wordsPerLine, WORD),
                         WORD));
             }
@@ -178,7 +178,7 @@ public class TextLineWrapTest
             public void longerStringOnThreeLines() {
                 String input = words(wordsPerLine + wordsPerLine + 1, WORD);
                 String oneLinesWorthOfWords = words(wordsPerLine, WORD);
-                assertThat(invoke(input)).containsExactly(Arrays.asList(
+                assertThat(wrap(input)).containsExactly(Arrays.asList(
                         oneLinesWorthOfWords,
                         oneLinesWorthOfWords,
                         WORD));
@@ -189,7 +189,7 @@ public class TextLineWrapTest
             public void textFillsBox() {
                 String lineOfWords = words(wordsPerLine, WORD);
                 String words = words(linesPerBox, lineOfWords);
-                assertThat(invoke(words).get(0))
+                assertThat(wrap(words).get(0))
                         .hasSize(linesPerBox)
                         .allSatisfy(line ->
                                 assertThat(line).isEqualTo(lineOfWords));
@@ -220,7 +220,7 @@ public class TextLineWrapTest
             @Test
             @DisplayName("Empty String give empty List")
             public void emptyStringEmptyList() {
-                assertThat(invoke("")).containsExactly(
+                assertThat(wrap("")).containsExactly(
                         Collections.emptyList(),
                         Collections.emptyList());
             }
@@ -228,7 +228,7 @@ public class TextLineWrapTest
             @Test
             @DisplayName("Short string fits on one line")
             public void shortStringOnOneLine() {
-                assertThat(invoke("x"))
+                assertThat(wrap("x"))
                         .containsExactly(
                                 Collections.singletonList("x"),
                                 Collections.emptyList());
@@ -238,7 +238,7 @@ public class TextLineWrapTest
             @DisplayName("Fits max 'words' per line on one line")
             public void fitMaxWordsOneLine() {
                 String input = words(wordsPerLine, WORD);
-                assertThat(invoke(input))
+                assertThat(wrap(input))
                         .containsExactly(
                                 Collections.singletonList(input),
                                 Collections.emptyList()                         );
@@ -248,7 +248,7 @@ public class TextLineWrapTest
             @DisplayName("Wraps just over max 'words' per line onto two lines")
             public void wrapOneWordTooManyOntoTwoLines() {
                 String input = words(wordsPerLine + 1, WORD);
-                assertThat(invoke(input)).containsExactly(Arrays.asList(
+                assertThat(wrap(input)).containsExactly(Arrays.asList(
                         words(wordsPerLine, WORD),
                         WORD),
                         Collections.emptyList());
@@ -259,7 +259,7 @@ public class TextLineWrapTest
             public void longerStringOnThreeLines() {
                 String input = words(wordsPerLine + wordsPerLine + 1, WORD);
                 String oneLinesWorthOfWords = words(wordsPerLine, WORD);
-                assertThat(invoke(input)).containsExactly(Arrays.asList(
+                assertThat(wrap(input)).containsExactly(Arrays.asList(
                         oneLinesWorthOfWords,
                         oneLinesWorthOfWords,
                         WORD),
@@ -271,7 +271,7 @@ public class TextLineWrapTest
             public void fitMaxLinesInFirstBox() {
                 String oneLinesWorthOfWords = words(wordsPerLine, WORD);
                 String input = words(linesPerBox, oneLinesWorthOfWords);
-                List<List<String>> result = invoke(input);
+                List<List<String>> result = wrap(input);
                 List<String> linesBoxOne = result.get(0);
                 assertThat(linesBoxOne)
                         .hasSize(linesPerBox)
@@ -285,7 +285,7 @@ public class TextLineWrapTest
             public void overflowMaxPlusOneLinesIntoSecondBox() {
                 String oneLinesWorthOfWords = words(wordsPerLine, WORD);
                 String input = words(linesPerBox + 1, oneLinesWorthOfWords);
-                List<List<String>> result = invoke(input);
+                List<List<String>> result = wrap(input);
                 List<String> linesBoxOne = result.get(0);
                 assertThat(linesBoxOne)
                         .hasSize(linesPerBox)

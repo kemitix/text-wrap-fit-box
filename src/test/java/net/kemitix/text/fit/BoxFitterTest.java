@@ -53,7 +53,7 @@ public class BoxFitterTest
                     "extralongword", 44
             );
             wordMap.forEach((word, expectedSize) ->
-                    assertThat(invoke(word))
+                    assertThat(fit(word))
                             .as(word)
                             .isEqualTo(expectedSize));
         }
@@ -74,7 +74,7 @@ public class BoxFitterTest
                     longStringGenerator(196), 3
             );
             wordMap.forEach((word, expectedSize) ->
-                    assertThat(invoke(word))
+                    assertThat(fit(word))
                             .as(word)
                             .isEqualTo(expectedSize));
         }
@@ -85,18 +85,18 @@ public class BoxFitterTest
         public void tooLongThrows() {
             String longText = longStringGenerator(197);
             assertThatExceptionOfType(IllegalArgumentException.class)
-                    .isThrownBy(() -> invoke(longText));
+                    .isThrownBy(() -> fit(longText));
         }
 
         @Test
         @DisplayName("Long text can be fitted down to a font size of 3")
         public void veryLongFits() {
             String longText = longStringGenerator(196);
-            assertThatCode(() -> invoke(longText))
+            assertThatCode(() -> fit(longText))
                     .doesNotThrowAnyException();
         }
 
-        private int invoke(String longText) {
+        private int fit(String longText) {
             return boxFitter.fit(longText, fontFactory, graphics2D, box);
         }
     }
@@ -110,7 +110,7 @@ public class BoxFitterTest
         private Rectangle2D box = new Rectangle(imageSize, imageSize);
         private List<Rectangle2D> boxes = Arrays.asList(box, box);
 
-        private int invoke(String longText) {
+        private int fit(String longText) {
             return boxFitter.fit(longText, fontFactory, graphics2D, boxes);
         }
 
@@ -118,7 +118,7 @@ public class BoxFitterTest
         @DisplayName("Text too long to fit single box - fits into two")
         public void tooLongThrows() {
             String longText = longStringGenerator(197);
-            int result = invoke(longText);
+            int result = fit(longText);
             assertThat(result).isGreaterThan(3);
         }
 
