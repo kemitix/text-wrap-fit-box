@@ -56,6 +56,9 @@ class TextLineWrapImpl implements WordWrapper {
                             lineQ.forEach(wordQ::push);
                             return removeBlankLines(lines);
                         }
+                        if (end == 0 && word.width > width) {
+                            throw new WordTooLong(word.word);
+                        }
                         if ((end + word.width) > width) {
                             lines.add(wordsAsString((Deque<Word>) lineQ));
                             lineQ.clear();

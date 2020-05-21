@@ -16,6 +16,8 @@ public interface WordWrapper {
      * @return a list of the each line of text
      * @throws NotEnoughSpace if there are more than {@link Integer#MAX_VALUE}
      * lines - so not likely.
+     * @throws WordTooLong if there is a word that is too long to fit on a line
+     * by itself.
      */
     List<String> wrap(
             String text,
@@ -35,6 +37,8 @@ public interface WordWrapper {
      * @return a list of the each line of text
      * @throws NotEnoughSpace if there are more lines than can be fitted in the
      * boxes provided.
+     * @throws WordTooLong if there is a word that is too long to fit on a line
+     * by itself. Not likely as this would simply force smaller fonts.
      */
     List<List<String>> wrap(
             String text,

@@ -107,6 +107,18 @@ public class TextLineWrapTest
                             oneLinesWorthOfWords,
                             WORD);
         }
+
+        @Test
+        @DisplayName("A word that can't fit on a line by itself throws")
+        public void overLongWordThrows() {
+            String longWord = words(wordsPerLine * 2, WORD)
+                    .replace(" ", "");
+            assertThatExceptionOfType(WordTooLong.class)
+                    .isThrownBy(() -> invoke(longWord))
+                    .satisfies(error ->
+                            assertThat(error.getLongWord())
+                                    .isEqualTo(longWord));
+        }
     }
 
     private String words(int number, String word) {
