@@ -199,9 +199,12 @@ public class TextLineWrapTest
             @DisplayName("Text overflows the box")
             public void tooManyLinesForBox() {
                 String lineOfWords = words(wordsPerLine, WORD);
-                assertThatExceptionOfType(IllegalArgumentException.class)
-                        .isThrownBy(() ->
-                                words(linesPerBox + 1, lineOfWords));
+                String input = words(linesPerBox + 1, lineOfWords);
+                assertThatExceptionOfType(NotEnoughSpace.class)
+                        .isThrownBy(() -> wrap(input))
+                        .satisfies(error ->
+                                assertThat(error.getExcessWordCount())
+                                        .isEqualTo(wordsPerLine));
             }
         }
 

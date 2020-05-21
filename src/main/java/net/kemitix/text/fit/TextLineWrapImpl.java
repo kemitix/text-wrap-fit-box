@@ -41,7 +41,7 @@ class TextLineWrapImpl implements WordWrapper {
             List<Rectangle2D> boxes
     ) {
         Deque<Word> wordQ = new ArrayDeque<>(words);
-        return boxes.stream()
+        List<List<String>> wrappings = boxes.stream()
                 .map(rectangle2D -> {
                     double width = rectangle2D.getWidth();
                     double height = rectangle2D.getHeight();
@@ -68,6 +68,10 @@ class TextLineWrapImpl implements WordWrapper {
                     lines.add(wordsAsString(lineQ));
                     return removeBlankLines(lines);
                 }).collect(Collectors.toList());
+        if (wordQ.isEmpty()) {
+            return wrappings;
+        }
+        throw new NotEnoughSpace(wordQ.size());
     }
 
     private List<String> removeBlankLines(List<String> lines) {
