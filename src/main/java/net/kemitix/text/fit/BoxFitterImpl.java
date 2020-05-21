@@ -33,6 +33,16 @@ class BoxFitterImpl implements BoxFitter {
         return fit;
     }
 
+    @Override
+    public int fit(
+            String text,
+            Function<Integer, Font> fontFactory,
+            Graphics2D graphics2D,
+            List<Rectangle2D> box
+    ) {
+        return fit(text, fontFactory, graphics2D, box.get(0));
+    }
+
     private Integer fitMinMax(
             int min,
             int max,

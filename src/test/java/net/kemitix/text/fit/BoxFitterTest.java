@@ -12,9 +12,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -99,6 +99,29 @@ public class BoxFitterTest
         private int invoke(String longText) {
             return boxFitter.fit(longText, fontFactory, graphics2D, box);
         }
+    }
+
+    @Nested
+    @DisplayName("Overflow boxes")
+    public class OverflowBoxes {
+
+        private final int imageSize = 300;
+        private final Graphics2D graphics2D = graphics(imageSize, imageSize);
+        private Rectangle2D box = new Rectangle(imageSize, imageSize);
+        private List<Rectangle2D> boxes = Arrays.asList(box, box);
+
+        private int invoke(String longText) {
+            return boxFitter.fit(longText, fontFactory, graphics2D, boxes);
+        }
+
+        @Test
+        @DisplayName("Text too long to fit single box - fits into two")
+        public void tooLongThrows() {
+            String longText = longStringGenerator(197);
+            int result = invoke(longText);
+            assertThat(result).isGreaterThan(3);
+        }
+
     }
 
     private String longStringGenerator(int cycles) {
