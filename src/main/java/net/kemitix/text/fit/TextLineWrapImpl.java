@@ -20,7 +20,7 @@ class TextLineWrapImpl implements WordWrapper {
     ) {
         return wrap(text, font, graphics2D,
                 Collections.singletonList(
-                        new Rectangle(width, width)))
+                        new Rectangle(width, Integer.MAX_VALUE)))
                 .get(0);
     }
 
