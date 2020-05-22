@@ -52,7 +52,7 @@ class TextLineWrapImpl implements WordWrapper {
                     while (!wordQ.isEmpty()) {
                         Word word = wordQ.pop();
                         if ((bottom + word.height) > height) {
-                            wordQ.push(word);
+                            wordQ.add(word);
                             lineQ.forEach(wordQ::push);
                             return removeBlankLines(lines);
                         }
@@ -65,7 +65,7 @@ class TextLineWrapImpl implements WordWrapper {
                             end = 0;
                             bottom += word.height;
                         }
-                        lineQ.push(word);
+                        lineQ.add(word);
                         end += word.width;
                     }
                     lines.add(wordsAsString(lineQ));
