@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -25,6 +26,9 @@ public class BoxFitterTest
     private final BoxFitter boxFitter = TextFit.fitter();
     private final Font font;
     private Function<Integer, Font> fontFactory;
+    private final int imageSize = 300;
+    private final Graphics2D graphics2D = graphics(imageSize, imageSize);
+    private Rectangle2D box = new Rectangle(imageSize, imageSize);
 
     public BoxFitterTest() throws URISyntaxException, IOException, FontFormatException {
         URL resource = this.getClass().getResource("alice/Alice-Regular.ttf");
@@ -41,10 +45,6 @@ public class BoxFitterTest
     @Nested
     @DisplayName("Single Box API")
     public class SingleBoxAPI implements FitTests {
-
-        private final int imageSize = 300;
-        private final Graphics2D graphics2D = graphics(imageSize, imageSize);
-        private Rectangle2D box = new Rectangle(imageSize, imageSize);
 
         @Override
         public int fit(String longText) {
@@ -110,38 +110,65 @@ public class BoxFitterTest
     @DisplayName("List of Boxes API")
     public class BoxListAPI {
 
-        private final int imageSize = 300;
-        private final Graphics2D graphics2D = graphics(imageSize, imageSize);
-        private Rectangle2D box = new Rectangle(imageSize, imageSize);
-        private List<Rectangle2D> boxes = Arrays.asList(box, box);
-
         @Nested
         @DisplayName("Single Box")
         // different API, but should have same behaviour as using single box API
-        public class SingleBox extends SingleBoxAPI {
+        public class SingleBox implements FitTests {
 
-            @Override
-            public int fit(String longText) {
-                return boxFitter.fit(longText, fontFactory, graphics2D, boxes);
-            }
+            private final List<Rectangle2D> boxes = Collections.singletonList(box);
 
-        }
-
-        @Nested
-        @DisplayName("Two Boxes")
-        public class TwoBoxes implements FitTests{
             @Override
             public int fit(String longText) {
                 return boxFitter.fit(longText, fontFactory, graphics2D, boxes);
             }
 
             @Test
-            @DisplayName("Text too long to fit single box - fits into two")
+            @DisplayName("Fit various lengths")
+            public void fitVariousLengths() {
+                Map<String, Integer> wordMap = Map.of(
+                        ". .", 263,
+                        "a a", 208,
+                        "Another Word", 76,
+                        longStringGenerator(1), 93,
+                        longStringGenerator(2), 36,
+                        longStringGenerator(3), 27,
+                        longStringGenerator(4), 22,
+                        longStringGenerator(5), 20,
+                        longStringGenerator(100), 4,
+                        longStringGenerator(196), 3
+                );
+                wordMap.forEach((word, expectedSize) ->
+                        assertThat(fit(word))
+                                .as(word)
+                                .isEqualTo(expectedSize));
+            }
+
+            @Test
+            @DisplayName("Excess text for one box - throws")
+            public void tooMuchForOneBox() {
+                assertThatExceptionOfType(NotEnoughSpace.class)
+                        .isThrownBy(() ->
+                                fit(longStringGenerator(197)));
+            }
+        }
+
+        @Nested
+        @DisplayName("Two Boxes")
+        public class TwoBoxes implements FitTests{
+
+            private final List<Rectangle2D> boxes = Arrays.asList(box, box);
+
+            @Override
+            public int fit(String longText) {
+                return boxFitter.fit(longText, fontFactory, graphics2D, boxes);
+            }
+
+            @Test
+            @DisplayName("Excess text for one box - fits into two")
             public void tooLongThrows() {
-                String longText = longStringGenerator(197);
-                //TODO: should overflow into second box
-                assertThatExceptionOfType(IllegalArgumentException.class)
-                        .isThrownBy(() -> fit(longText));
+                assertThatCode(() ->
+                        fit(longStringGenerator(197)))
+                        .doesNotThrowAnyException();
             }
 
         }

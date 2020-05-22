@@ -5,9 +5,12 @@ import lombok.RequiredArgsConstructor;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Fit the text to a box by finding the best font size and word wrapping to fill
@@ -16,6 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 class BoxFitterImpl implements BoxFitter {
 
+    public static final int MAX_FONT_SIZE = 10_000;
     private final WordWrapper wordWrapper;
 
     @Override
@@ -25,12 +29,8 @@ class BoxFitterImpl implements BoxFitter {
             Graphics2D graphics2D,
             Rectangle2D box
     ) {
-        int fit = fitMinMax(0, (int) box.getHeight(),
-                new FitEnvironment(text, fontFactory, graphics2D, box));
-        if (fit <= 2) {
-            throw new IllegalArgumentException("The text is too long to fit");
-        }
-        return fit;
+        return fit(text, fontFactory, graphics2D,
+                Collections.singletonList(box));
     }
 
     @Override
@@ -38,9 +38,15 @@ class BoxFitterImpl implements BoxFitter {
             String text,
             Function<Integer, Font> fontFactory,
             Graphics2D graphics2D,
-            List<Rectangle2D> box
+            List<Rectangle2D> boxes
     ) {
-        return fit(text, fontFactory, graphics2D, box.get(0));
+        int fit = fitMinMax(0, MAX_FONT_SIZE,
+                new FitEnvironment(text, fontFactory, graphics2D,
+                        boxes));
+        if (fit <= 2) {
+            throw new IllegalArgumentException("The text is too long to fit");
+        }
+        return fit;
     }
 
     private Integer fitMinMax(
@@ -49,29 +55,39 @@ class BoxFitterImpl implements BoxFitter {
             FitEnvironment e
     ) {
         int mid = (max + min) / 2;
-        if (mid == min){
+        if (mid == min && mid + 1 == max) {
             return mid;
         }
         Font font = e.getFont(mid);
         try {
-            List<String> lines = wrapLines(font, e);
-            List<Rectangle2D> lineSizes =
-                    lineSizes(font, lines, e.fontRenderContext());
-            if (sumLineHeights(lineSizes) > e.boxHeight() ||
-                    maxLineWidth(lineSizes) > e.boxWidth()) {
+            List<List<Rectangle2D>> linesPerBox = wrapLines(font, e);
+            if (tooManyLines(linesPerBox, e.boxes)) {
                 return fitMinMax(min, mid, e);
             }
-        } catch (WordTooLong err) {
+        } catch (WordTooLong | NotEnoughSpace err) {
             return fitMinMax(min, mid, e);
         }
         return fitMinMax(mid, max, e);
     }
 
-    private List<String> wrapLines(
+    private boolean tooManyLines(
+            List<List<Rectangle2D>> linesPerBox,
+            List<Rectangle2D> boxes
+    ) {
+        return StreamZipper.zip(linesPerBox, boxes,
+                (stringBounds, box) ->
+                        sumLineHeights(stringBounds) > box.getHeight()
+        ).anyMatch(b -> b);
+    }
+
+    private List<List<Rectangle2D>> wrapLines(
             Font font,
             FitEnvironment e
     ) {
-        return wordWrapper.wrap(e.text, font, e.graphics2D, e.boxWidth());
+        return wordWrapper.wrap(e.text, font, e.graphics2D, e.boxes)
+                .stream()
+                .map(l -> lineSizes(font, l, e.fontRenderContext()))
+                .collect(Collectors.toList());
     }
 
     private List<Rectangle2D> lineSizes(
@@ -85,13 +101,10 @@ class BoxFitterImpl implements BoxFitter {
     }
 
     private int sumLineHeights(List<Rectangle2D> lineSizes) {
-        return lineSizes.stream().map(Rectangle2D::getHeight)
-                .mapToInt(Double::intValue).sum();
-    }
-
-    private int maxLineWidth(List<Rectangle2D> lineSizes) {
-        return lineSizes.stream().map(Rectangle2D::getWidth)
-                .mapToInt(Double::intValue).max().orElse(0);
+        return lineSizes.stream()
+                .map(Rectangle2D::getHeight)
+                .mapToInt(Double::intValue)
+                .sum();
     }
 
     @RequiredArgsConstructor
@@ -99,17 +112,10 @@ class BoxFitterImpl implements BoxFitter {
         private final String text;
         private final Function<Integer, Font> fontFactory;
         private final Graphics2D graphics2D;
-        private final Rectangle2D box;
+        private final List<Rectangle2D> boxes;
 
         public Font getFont(int size) {
             return fontFactory.apply(size);
-        }
-        public int boxWidth() {
-            return (int) box.getWidth();
-        }
-
-        public int boxHeight() {
-            return (int) box.getHeight();
         }
 
         public FontRenderContext fontRenderContext() {
