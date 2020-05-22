@@ -53,11 +53,15 @@ class BoxFitterImpl implements BoxFitter {
             return mid;
         }
         Font font = e.getFont(mid);
-        List<String> lines = wrapLines(font, e);
-        List<Rectangle2D> lineSizes =
-                lineSizes(font, lines, e.fontRenderContext());
-        if (sumLineHeights(lineSizes) > e.boxHeight() ||
-                maxLineWidth(lineSizes) > e.boxWidth()) {
+        try {
+            List<String> lines = wrapLines(font, e);
+            List<Rectangle2D> lineSizes =
+                    lineSizes(font, lines, e.fontRenderContext());
+            if (sumLineHeights(lineSizes) > e.boxHeight() ||
+                    maxLineWidth(lineSizes) > e.boxWidth()) {
+                return fitMinMax(min, mid, e);
+            }
+        } catch (WordTooLong err) {
             return fitMinMax(min, mid, e);
         }
         return fitMinMax(mid, max, e);
