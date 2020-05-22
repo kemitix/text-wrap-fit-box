@@ -34,13 +34,22 @@ public class BoxFitterTest
         fontFactory = size -> font.deriveFont(Font.PLAIN, size);
     }
 
+    interface FitTests {
+        int fit(String text);
+    }
+
     @Nested
-    @DisplayName("Single Box")
-    public class SingleBox {
+    @DisplayName("Single Box API")
+    public class SingleBoxAPI implements FitTests {
 
         private final int imageSize = 300;
         private final Graphics2D graphics2D = graphics(imageSize, imageSize);
         private Rectangle2D box = new Rectangle(imageSize, imageSize);
+
+        @Override
+        public int fit(String longText) {
+            return boxFitter.fit(longText, fontFactory, graphics2D, box);
+        }
 
         @Test
         @DisplayName("Fit single words")
@@ -95,32 +104,46 @@ public class BoxFitterTest
             assertThatCode(() -> fit(longText))
                     .doesNotThrowAnyException();
         }
-
-        private int fit(String longText) {
-            return boxFitter.fit(longText, fontFactory, graphics2D, box);
-        }
     }
 
     @Nested
-    @DisplayName("Overflow boxes")
-    public class OverflowBoxes {
+    @DisplayName("List of Boxes API")
+    public class BoxListAPI {
 
         private final int imageSize = 300;
         private final Graphics2D graphics2D = graphics(imageSize, imageSize);
         private Rectangle2D box = new Rectangle(imageSize, imageSize);
         private List<Rectangle2D> boxes = Arrays.asList(box, box);
 
-        private int fit(String longText) {
-            return boxFitter.fit(longText, fontFactory, graphics2D, boxes);
+        @Nested
+        @DisplayName("Single Box")
+        // different API, but should have same behaviour as using single box API
+        public class SingleBox extends SingleBoxAPI {
+
+            @Override
+            public int fit(String longText) {
+                return boxFitter.fit(longText, fontFactory, graphics2D, boxes);
+            }
+
         }
 
-        @Test
-        @DisplayName("Text too long to fit single box - fits into two")
-        public void tooLongThrows() {
-            String longText = longStringGenerator(197);
-            //TODO: should overflow into second box
-            assertThatExceptionOfType(IllegalArgumentException.class)
-                    .isThrownBy(() -> fit(longText));
+        @Nested
+        @DisplayName("Two Boxes")
+        public class TwoBoxes implements FitTests{
+            @Override
+            public int fit(String longText) {
+                return boxFitter.fit(longText, fontFactory, graphics2D, boxes);
+            }
+
+            @Test
+            @DisplayName("Text too long to fit single box - fits into two")
+            public void tooLongThrows() {
+                String longText = longStringGenerator(197);
+                //TODO: should overflow into second box
+                assertThatExceptionOfType(IllegalArgumentException.class)
+                        .isThrownBy(() -> fit(longText));
+            }
+
         }
 
     }
