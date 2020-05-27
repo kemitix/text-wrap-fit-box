@@ -44,7 +44,7 @@ class BoxFitterImpl implements BoxFitter {
                 new FitEnvironment(text, fontFactory, graphics2D,
                         boxes));
         if (fit <= 2) {
-            throw new IllegalArgumentException("The text is too long to fit");
+            throw new NotEnoughSpace(0);
         }
         return fit;
     }

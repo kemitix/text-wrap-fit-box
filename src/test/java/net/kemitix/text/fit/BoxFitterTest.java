@@ -89,11 +89,11 @@ public class BoxFitterTest
         }
 
         @Test
-        @DisplayName("Text too long to fit throws and exception")
+        @DisplayName("Text too long to fit throws")
         // too long to fit means it would need to be rendered at a font size of <2
         public void tooLongThrows() {
             String longText = longStringGenerator(197);
-            assertThatExceptionOfType(IllegalArgumentException.class)
+            assertThatExceptionOfType(NotEnoughSpace.class)
                     .isThrownBy(() -> fit(longText));
         }
 
