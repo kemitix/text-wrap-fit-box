@@ -14,6 +14,10 @@ font size and/or overflow into additional rectangles.
 </dependency>
 ```
 
+## Requirements
+
+* JDK 11+
+
 ## Usage
 
 ### Word Wrap
